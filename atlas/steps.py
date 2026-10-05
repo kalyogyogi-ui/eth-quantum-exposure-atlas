@@ -37,6 +37,20 @@ STEPS = [
          "Permit2 summary"),
 ]
 
+# Sample queries run by `atlas verify`. `atlas plan` prices them too, so no query runs unpriced.
+VERIFY_TOP = 50
+VERIFY_SAMPLE = 200
+VERIFY_STEPS = [
+    Step("V1", "verify_accounts_sample.sql", "query", None, ("accounts",), False,
+         "Verify sample: exposed accounts"),
+    Step("V2", "verify_holdings_sample.sql", "query", None, ("token_holdings",), False,
+         "Verify sample: token holdings"),
+]
+
+
+def verify_extra(top: int = VERIFY_TOP, sample: int = VERIFY_SAMPLE) -> dict:
+    return {"top_n": top, "random_n": sample}
+
 
 def render(sql: str, work: str, src: str = DEFAULT_SRC, extra: dict | None = None) -> str:
     """Fill {{src}}, {{work}} and every constant. Raises if a placeholder is left over."""
