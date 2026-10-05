@@ -13,6 +13,28 @@ from ..rpc import RPCError, RPCTransportError
 MAX_DEPTH = 8
 MAX_ROLE_MEMBERS = 50
 
+# Readable labels for the evidence table; the raw selector or slot is kept beside each.
+CALL_NAMES = {
+    K.SEL_OWNER: "owner()", K.SEL_ADMIN: "admin()", K.SEL_GET_OWNERS: "getOwners()",
+    K.SEL_GET_THRESHOLD: "getThreshold()", K.SEL_GET_MIN_DELAY: "getMinDelay()", K.SEL_DELAY: "delay()",
+    K.SEL_GET_ROLE_MEMBER_COUNT: "getRoleMemberCount(bytes32)",
+    K.SEL_GET_ROLE_MEMBER: "getRoleMember(bytes32,uint256)", K.SEL_VOTING_PERIOD: "votingPeriod()",
+    K.SEL_TOTAL_SUPPLY: "totalSupply()", K.SEL_DECIMALS: "decimals()",
+    K.SEL_IMPLEMENTATION: "implementation()",
+}
+SLOT_NAMES = {
+    K.SLOT_EIP1967_ADMIN: "eip1967.proxy.admin", K.SLOT_ZOS_ADMIN: "zos admin",
+    K.SLOT_EIP1967_IMPL: "eip1967.proxy.implementation", K.SLOT_EIP1967_BEACON: "eip1967.proxy.beacon",
+    K.SLOT_ZOS_IMPL: "zos implementation", K.SLOT_EIP1822: "eip1822 PROXIABLE",
+}
+
+
+def _call_label(data: str) -> str:
+    sel, args = data[2:10], data[10:]
+    name = CALL_NAMES.get(sel, "")
+    label = f"eth_call {name} [0x{sel}]" if name else f"eth_call 0x{sel}"
+    return label + (f" args 0x{args}" if args else "")
+
 
 def uint_word(n: int) -> str:
     return f"{n:064x}"
@@ -60,7 +82,8 @@ class Probe:
 
     def get_storage(self, address: str, slot: str) -> str:
         word = self.rpc.get_storage(address, slot)
-        self._rec(address, f"eth_getStorageAt 0x{slot}", word)
+        name = SLOT_NAMES.get(slot)
+        self._rec(address, f"eth_getStorageAt {name} [0x{slot}]" if name else f"eth_getStorageAt 0x{slot}", word)
         return word
 
     def eth_call(self, to: str, data: str) -> str:
@@ -69,9 +92,9 @@ class Probe:
         except RPCTransportError:
             raise
         except RPCError as e:
-            self._rec(to, f"eth_call {data[:10]}", f"error: {str(e)[:120]}")
+            self._rec(to, _call_label(data), f"error: {str(e)[:120]}")
             raise
-        self._rec(to, f"eth_call {data[:10]}", out)
+        self._rec(to, _call_label(data), out)
         return out
 
     def get_nonce(self, address: str) -> int:

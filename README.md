@@ -4,7 +4,7 @@ An open, reproducible measurement of how much value on Ethereum a future quantum
 computer could steal, including a surface nobody has measured before: token value
 reachable through ECDSA `permit` signatures in contracts that cannot be changed.
 
-**Status:** pipeline complete and unit-tested (66 tests); not yet run on live data.
+**Status:** pipeline complete and unit-tested (131 tests); not yet run on live data.
 
 ## What it measures
 
@@ -33,7 +33,7 @@ already measured it (about 2.5M ETH in admin-controlled contracts). Cite it inst
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements-dev.txt
-python -m pytest                # 66 tests, no network needed
+python -m pytest                # 131 tests, no network needed
 
 gcloud auth application-default login
 set P=your-gcp-project-id       # macOS/Linux: export P=your-gcp-project-id
@@ -67,6 +67,22 @@ python -m atlas snapshot
 python -m atlas run --project %P% --work %P%.atlas --steps 07 08 --include-optional
 ```
 
+## Per-organisation exposure
+
+Separate from the headline numbers: for each organisation in `orgs/registry.yaml`, which keys
+control its contracts, and are those keys quantum-exposed? RPC only, no BigQuery.
+
+```bash
+# Reads every address at one block; prints the block so a re-run gives identical files.
+python -m atlas orgs --rpc-url https://ethereum-rpc.publicnode.com [--slug lido] [--block N]
+# Also look for Safe owners revealed by their signatures (slow on free endpoints):
+python -m atlas orgs --rpc-url URL --sig-scan-from 10000000
+```
+
+Writes `orgs/out/<slug>.json` and `<slug>.md`: findings by rule (R0–R5), the control graph,
+unresolved items, and the evidence for every read. `orgs/out/` is git-ignored: every report
+is a draft until the owner sets `published: true`, after notifying the organisation.
+
 ## Outputs (`out/`)
 
 | File | Contents |
@@ -89,6 +105,8 @@ it whatever runs the query.
 ```
 sql/        one file per step; constants are injected from atlas/constants.py
 atlas/      CLI, BigQuery runner, RPC client, proxy resolver, pricing, summary, verification
+atlas/orgs/ per-organisation registry, control-graph resolver, rules, Safe signature check, reports
+orgs/       registry.yaml (contracts with source URLs); reports go to orgs/out/ (git-ignored)
 tests/      constants recomputed with keccak; SQL parsed as BigQuery; logic tested on fakes
 docs/       METHODOLOGY.md and a draft ethresear.ch post
 ```

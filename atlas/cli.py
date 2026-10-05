@@ -7,6 +7,7 @@
   python -m atlas summarize
   python -m atlas verify    --project P --work P.atlas --rpc-url URL
   python -m atlas snapshot
+  python -m atlas orgs      --rpc-url URL [--block N] [--slug lido ...]
 
 Every BigQuery query is dry-run first and checked against the monthly budget
 (--budget-gb, or ATLAS_MONTHLY_BUDGET_GIB); jobs are logged to out/bq_ledger.jsonl.
@@ -147,6 +148,31 @@ def cmd_snapshot(a) -> int:
     return 0
 
 
+def cmd_orgs(a) -> int:
+    from .orgs import registry, report
+    from .orgs.safesig import SignatureFinder
+    from .rpc import RPC
+    orgs = registry.load(Path(a.registry))
+    if a.slug:
+        unknown = set(a.slug) - {o.slug for o in orgs}
+        if unknown:
+            log(f"unknown slug(s): {', '.join(sorted(unknown))}")
+            return 2
+        orgs = [o for o in orgs if o.slug in a.slug]
+    base = RPC(a.rpc_url)
+    block = a.block if a.block is not None else base.block_number()
+    rpc = base.pinned(block)
+    finder = SignatureFinder(rpc, a.sig_scan_from, block) if a.sig_scan_from is not None else None
+    log(f"resolving {len(orgs)} organisation(s) at block {block:,}"
+        + ("" if finder else "; Safe signature scan off (pass --sig-scan-from to enable)"))
+    for o in orgs:
+        r = report.run_org(rpc, o, block, finder)
+        j, _ = report.write(r, Path(a.out))
+        log(f"  {o.slug}: {r['rule_counts']} -> {j}")
+    log(f"Re-run with --block {block} to reproduce these reports exactly.")
+    return 0
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="atlas", description="Ethereum Quantum Exposure Atlas")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -200,6 +226,16 @@ def main(argv=None) -> int:
     sp.add_argument("--allow-dirty", action="store_true", help="snapshot despite uncommitted changes")
     sp.add_argument("--force", action="store_true", help="replace an existing snapshot for that date")
     sp.set_defaults(fn=cmd_snapshot)
+
+    sp = sub.add_parser("orgs", help="per-organisation control graph and key exposure, over RPC")
+    sp.add_argument("--rpc-url", required=True)
+    sp.add_argument("--block", type=int, help="block to read at (default: latest; printed for re-runs)")
+    sp.add_argument("--registry", default="orgs/registry.yaml")
+    sp.add_argument("--slug", nargs="*", help="only these organisations")
+    sp.add_argument("--out", default="orgs/out")
+    sp.add_argument("--sig-scan-from", type=int,
+                    help="scan Safe executions from this block for signatures of nonce-0 owners")
+    sp.set_defaults(fn=cmd_orgs)
 
     a = p.parse_args(argv)
     return a.fn(a)

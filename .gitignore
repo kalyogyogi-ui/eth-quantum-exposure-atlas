@@ -4,3 +4,12 @@ __pycache__/
 .venv/
 *.pyc
 .pytest_cache/
+
+# Per-organisation reports are drafts until the owner publishes them; never commit them by accident.
+orgs/out/
+
+# Secrets
+.env
+.env.*
+*.key
+*.pem

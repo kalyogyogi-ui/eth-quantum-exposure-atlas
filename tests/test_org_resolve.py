@@ -217,7 +217,7 @@ def test_evidence_and_value_context():
         K.SEL_OWNER: word(HOT), K.SEL_TOTAL_SUPPLY: uint(10 ** 24), K.SEL_DECIMALS: uint(18)}}, HOT: eoa(1)}))
     nodes = resolve_graph(probe, [TOKEN])
     calls = [e["call"] for e in nodes[TOKEN]["evidence"]]
-    assert "eth_getCode" in calls and f"eth_call 0x{K.SEL_OWNER}" in calls
+    assert "eth_getCode" in calls and f"eth_call owner() [0x{K.SEL_OWNER}]" in calls
     assert value_context(probe, TOKEN, "token") == {"eth_balance_wei": "7", "total_supply_raw": str(10 ** 24),
                                                     "decimals": 18}
 
