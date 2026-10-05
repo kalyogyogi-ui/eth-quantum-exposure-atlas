@@ -44,6 +44,9 @@ rebuilt daily from traces and holds wei as NUMERIC.
    signed permits, exported xpubs), even from accounts that never sent a transaction.
 2. **Token balances from transfers.** Rebasing tokens (stETH) and fee-on-transfer tokens
    are approximate. `verify` compares a sample against `balanceOf` and reports mismatches.
+   Transfers whose value exceeds BigQuery's BIGNUMERIC range (about 5.79e38 raw units) are
+   dropped as spam. Balances and per-token totals that still overflow are flagged, valued
+   at zero, and counted in the summary (`permit_tokens_with_amount_overflow`).
 3. **Proxy coverage.** `resolve` handles the top N proxy candidates by exposed holders
    (default 2,000) and reports how many it skipped. Unknown proxy patterns are missed.
 4. **Weak proxy signal.** Small contracts containing the byte `f4` are included as

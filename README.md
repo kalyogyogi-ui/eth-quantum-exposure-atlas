@@ -4,7 +4,7 @@ An open, reproducible measurement of how much value on Ethereum a future quantum
 computer could steal, including a surface nobody has measured before: token value
 reachable through ECDSA `permit` signatures in contracts that cannot be changed.
 
-**Status:** pipeline complete and unit-tested (39 tests); not yet run on live data.
+**Status:** pipeline complete and unit-tested (63 tests); not yet run on live data.
 
 ## What it measures
 
@@ -33,15 +33,20 @@ already measured it (about 2.5M ETH in admin-controlled contracts). Cite it inst
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements-dev.txt
-python -m pytest                # 39 tests, no network needed
+python -m pytest                # 63 tests, no network needed
 
 gcloud auth application-default login
 set P=your-gcp-project-id       # macOS/Linux: export P=your-gcp-project-id
 
-# 1. Price every query first. Runs nothing, costs nothing.
+# 1. Price every query first, including verify's. Runs nothing, costs nothing.
+#    Steps that read work tables can only be priced once earlier steps have built them,
+#    so plan again after running 01 and 04.
 python -m atlas plan --project %P% --work %P%.atlas
 
-# 2. Run the BigQuery steps (each query is hard-capped at --max-gb).
+# 2. Run the BigQuery steps. Each query is dry-run again, refused if it would pass the
+#    monthly budget (--budget-gb, default 900 GiB, or ATLAS_MONTHLY_BUDGET_GIB), and
+#    hard-capped by BigQuery at the smaller of --max-gb and the budget left.
+#    Every job is logged to out/bq_ledger.jsonl.
 python -m atlas run --project %P% --work %P%.atlas
 
 # 3. Resolve proxy tokens (USDC, stETH and many others are proxies) and confirm permit.
@@ -53,6 +58,10 @@ python -m atlas summarize          # writes out/SUMMARY.md and out/summary.json
 
 # 5. Independent check against a live node.
 python -m atlas verify --project %P% --work %P%.atlas --rpc-url https://ethereum-rpc.publicnode.com
+
+# 6. Freeze the outputs into data/snapshots/YYYY-MM-DD/ with a manifest
+#    (commit hash, data freshness, bytes billed per step, SHA-256 of every file).
+python -m atlas snapshot
 
 # Optional: Permit2 approvals (scans the large logs table; run `plan --include-optional` first).
 python -m atlas run --project %P% --work %P%.atlas --steps 07 08 --include-optional
@@ -69,6 +78,11 @@ python -m atlas run --project %P% --work %P%.atlas --steps 07 08 --include-optio
 | `token_classification.csv` | Permit support, proxy mechanism, upgradeability per token |
 | `prices.csv` | DefiLlama prices used |
 | `VERIFY.md`, `verify.json` | Node spot-check results |
+| `bq_ledger.jsonl` | Every BigQuery job: estimate, bytes billed, job id (not copied into snapshots; the manifest summarises it) |
+
+The budget ledger only counts queries run through `atlas` on this machine. As a backstop,
+set a custom quota on query usage per day in your Google Cloud project; Google enforces
+it whatever runs the query.
 
 ## Layout
 
