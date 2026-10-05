@@ -31,7 +31,7 @@ EIP-1167 clones are marked not upgradeable because their target is fixed.
 | 05 | `token_transfers` for candidates only, single scan | `token_holdings`: net balance per EOA holder |
 | 06 | work tables + `tokens` | per-token exposed/unexposed raw amounts |
 | resolve | RPC `eth_getCode`, `eth_getStorageAt`, `eth_call` | proxy mechanism and permit confirmation |
-| price | DefiLlama, confidence ≥ 0.9 | USD values |
+| price | DefiLlama, confidence ≥ 0.9 (prices without a confidence value are excluded) | USD values |
 | 07–08 | `logs` since Nov 2022 (optional) | live Permit2 approvals |
 | verify | RPC nonce, code, balance, `balanceOf` | agreement rates |
 
@@ -53,6 +53,10 @@ rebuilt daily from traces and holds wei as NUMERIC.
    candidates; RPC resolution discards those that are not proxies.
 5. **Prices** are a snapshot; low-confidence prices are excluded, so USD totals undercount.
 6. **Data freshness.** The summary records the latest transaction timestamp seen.
+   "Dormant 5+ years" means the account's last transaction was in year Y − 5 or earlier,
+   where Y is the year of that timestamp, so a snapshot's figure does not change when it
+   is re-summarized later. Year granularity means "5+ years" can include accounts last
+   active between 5 and 6 years before the data date.
 
 ## Why not use traces for `ecrecover`?
 

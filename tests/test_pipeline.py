@@ -98,3 +98,30 @@ def test_summary_with_no_outputs_yet(tmp_path):
     out = tmp_path / "does_not_exist_yet"
     s = summarize.build(out)
     assert "eth" not in s and (out / "SUMMARY.md").exists()
+
+
+def dormancy_inputs(tmp_path, freshness):
+    write(tmp_path / "02_exposed_eth_summary.csv", [{
+        "eth_all_accounts": "100", "eth_in_contracts": "0", "eth_in_eoas": "100",
+        "eth_in_exposed_eoas": "100", "eth_in_unexposed_eoas": "0",
+        "n_exposed_eoas_with_balance": "2", "n_unexposed_eoas_with_balance": "0",
+        "eth_in_top1000_exposed_eoas": "100", "data_freshness_last_tx": freshness}])
+    write(tmp_path / "03_exposure_distribution.csv", [
+        {"balance_bucket_eth": "3: 1-10", "last_sent_year": "2016", "n_accounts": "1", "eth": "40"},
+        {"balance_bucket_eth": "3: 1-10", "last_sent_year": "2017", "n_accounts": "1", "eth": "60"}])
+
+
+def test_dormancy_is_anchored_to_data_year_not_today(tmp_path):
+    """Regression: dormancy used datetime.now(), so re-summarizing an old snapshot changed it."""
+    dormancy_inputs(tmp_path, "2021-12-31 23:59:59+00:00")
+    d = summarize.build(tmp_path)["dormancy"]
+    assert d == {"eth_exposed_last_active_5plus_years_ago": 40, "reference_year": 2021,
+                 "last_sent_year_at_most": 2016}
+    assert "2016 or earlier; data runs to 2021" in (tmp_path / "SUMMARY.md").read_text()
+
+
+def test_dormancy_without_freshness_is_not_guessed(tmp_path):
+    dormancy_inputs(tmp_path, "")
+    d = summarize.build(tmp_path)["dormancy"]
+    assert d["eth_exposed_last_active_5plus_years_ago"] is None and "not computed" in d["note"]
+    assert "not computed" in (tmp_path / "SUMMARY.md").read_text()

@@ -4,7 +4,7 @@ An open, reproducible measurement of how much value on Ethereum a future quantum
 computer could steal, including a surface nobody has measured before: token value
 reachable through ECDSA `permit` signatures in contracts that cannot be changed.
 
-**Status:** pipeline complete and unit-tested (63 tests); not yet run on live data.
+**Status:** pipeline complete and unit-tested (66 tests); not yet run on live data.
 
 ## What it measures
 
@@ -33,7 +33,7 @@ already measured it (about 2.5M ETH in admin-controlled contracts). Cite it inst
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements-dev.txt
-python -m pytest                # 63 tests, no network needed
+python -m pytest                # 66 tests, no network needed
 
 gcloud auth application-default login
 set P=your-gcp-project-id       # macOS/Linux: export P=your-gcp-project-id
