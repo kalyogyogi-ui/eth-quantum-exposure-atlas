@@ -74,3 +74,23 @@ def parse(data: dict) -> list[Org]:
 def load(path: Path) -> list[Org]:
     import yaml
     return parse(yaml.safe_load(Path(path).read_text()))
+
+
+def check_sources(orgs: list[Org], fetch) -> list[str]:
+    """Confirm every address still appears in its source_url. `fetch(url) -> str`.
+
+    Returns a list of problems; empty means every address was found in its source.
+    """
+    pages, problems = {}, []
+    for o in orgs:
+        for c in o.contracts:
+            if c.source_url not in pages:
+                try:
+                    pages[c.source_url] = fetch(c.source_url).lower()
+                except Exception as e:
+                    pages[c.source_url] = None
+                    problems.append(f"{c.source_url}: could not fetch ({str(e)[:80]})")
+            page = pages[c.source_url]
+            if page is not None and c.address not in page:
+                problems.append(f"{o.slug}: {c.label or c.address} {c.address} not found in {c.source_url}")
+    return problems

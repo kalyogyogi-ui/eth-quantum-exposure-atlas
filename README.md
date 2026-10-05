@@ -4,7 +4,7 @@ An open, reproducible measurement of how much value on Ethereum a future quantum
 computer could steal, including a surface nobody has measured before: token value
 reachable through ECDSA `permit` signatures in contracts that cannot be changed.
 
-**Status:** pipeline complete and unit-tested (131 tests); not yet run on live data.
+**Status:** pipeline complete and unit-tested (135 tests); not yet run on live data.
 
 ## What it measures
 
@@ -33,7 +33,7 @@ already measured it (about 2.5M ETH in admin-controlled contracts). Cite it inst
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements-dev.txt
-python -m pytest                # 131 tests, no network needed
+python -m pytest                # 135 tests, no network needed
 
 gcloud auth application-default login
 set P=your-gcp-project-id       # macOS/Linux: export P=your-gcp-project-id
@@ -77,6 +77,8 @@ control its contracts, and are those keys quantum-exposed? RPC only, no BigQuery
 python -m atlas orgs --rpc-url https://ethereum-rpc.publicnode.com [--slug lido] [--block N]
 # Also look for Safe owners revealed by their signatures (slow on free endpoints):
 python -m atlas orgs --rpc-url URL --sig-scan-from 10000000
+# Confirm every registry address still appears in the organisation's own source file:
+python -m atlas orgs-check
 ```
 
 Writes `orgs/out/<slug>.json` and `<slug>.md`: findings by rule (R0–R5), the control graph,

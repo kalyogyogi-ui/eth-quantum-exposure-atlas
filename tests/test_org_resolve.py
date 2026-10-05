@@ -232,3 +232,13 @@ def test_most_direct_exposure_is_reported():
                    HOT: eoa(1)}, TOKEN)
     assert f["rule"] == "R1" and f["path"] == [TOKEN, PROXY_ADMIN, HOT]
     assert evaluate({}, HOT)["status"] == "unknown"
+
+
+def test_aragon_app_is_unresolved_not_uncontrolled():
+    """stETH-style Aragon AppProxy: permissions live in the kernel's ACL. Must be R5, never R0."""
+    kernel = addr(0xEE)
+    nodes, (f,) = run({TOKEN: {"code": CODE, "calls": {K.SEL_KERNEL: word(kernel),
+                                                      K.SEL_IMPLEMENTATION: word(addr(0xEF))}}}, TOKEN)
+    assert nodes[TOKEN]["kind"] == "aragon_app" and nodes[TOKEN]["kernel"] == kernel
+    assert nodes[TOKEN]["implementation"] == addr(0xEF)
+    assert f["rule"] == "R5" and "Aragon" in f["blocking"][0]

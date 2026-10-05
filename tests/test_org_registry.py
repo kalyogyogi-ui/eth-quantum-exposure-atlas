@@ -1,7 +1,7 @@
 """Registry validation."""
 import pytest
 
-from atlas.orgs.registry import RegistryError, parse
+from atlas.orgs.registry import RegistryError, check_sources, load, parse
 
 A = "0x" + "aB" * 20
 
@@ -39,3 +39,19 @@ def test_duplicate_slug():
     data["organisations"].append(dict(data["organisations"][0]))
     with pytest.raises(RegistryError, match="duplicate slug"):
         parse(data)
+
+
+def test_check_sources():
+    (o,) = parse(org())
+    assert check_sources([o], lambda url: f"Token: {A}") == []
+    (problem,) = check_sources([o], lambda url: "no address here")
+    assert "not found" in problem
+    def boom(url):
+        raise OSError("offline")
+    assert "could not fetch" in check_sources([o], boom)[0]
+
+
+def test_committed_registry_is_valid_and_unpublished():
+    orgs = load("orgs/registry.yaml")
+    assert len(orgs) >= 19 and not any(o.published for o in orgs)
+    assert all(c.source_url.startswith("https://") for o in orgs for c in o.contracts)

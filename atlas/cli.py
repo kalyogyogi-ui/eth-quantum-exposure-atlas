@@ -173,6 +173,24 @@ def cmd_orgs(a) -> int:
     return 0
 
 
+def cmd_orgs_check(a) -> int:
+    import urllib.request
+    from .orgs import registry
+    orgs = registry.load(Path(a.registry))
+
+    def fetch(url):
+        with urllib.request.urlopen(url, timeout=30) as resp:
+            return resp.read().decode("utf-8", "replace")
+
+    problems = registry.check_sources(orgs, fetch)
+    n = sum(len(o.contracts) for o in orgs)
+    for p in problems:
+        log(p)
+    log(f"{n - len(problems)} of {n} addresses found in their sources" if problems
+        else f"all {n} addresses found in their sources ({len(orgs)} organisations)")
+    return 1 if problems else 0
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="atlas", description="Ethereum Quantum Exposure Atlas")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -236,6 +254,10 @@ def main(argv=None) -> int:
     sp.add_argument("--sig-scan-from", type=int,
                     help="scan Safe executions from this block for signatures of nonce-0 owners")
     sp.set_defaults(fn=cmd_orgs)
+
+    sp = sub.add_parser("orgs-check", help="confirm every registry address appears in its source_url")
+    sp.add_argument("--registry", default="orgs/registry.yaml")
+    sp.set_defaults(fn=cmd_orgs_check)
 
     a = p.parse_args(argv)
     return a.fn(a)

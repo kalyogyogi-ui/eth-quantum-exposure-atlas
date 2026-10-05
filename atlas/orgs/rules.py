@@ -13,7 +13,7 @@ Status of an address (can its control be exercised using quantum-exposed keys on
                  unknown if those are not enumerable.
   Owned contract (ProxyAdmin, beacon, Ownable, AccessControl): exposed if any controller is
                  exposed (each one alone can act), else unknown if any is unknown.
-  Governor, unrecognised contract, cycle or depth limit: unknown.
+  Governor, Aragon app (ACL not enumerable), unrecognised contract, cycle or depth limit: unknown.
 
 Rules for each control edge of a registered contract:
   R1 single_exposed_eoa              one exposed key can act, with no multisig and no delay
@@ -62,7 +62,7 @@ def evaluate(nodes: dict, address: str, _stack: tuple = ()) -> dict:
     if kind == "eoa":
         return {**base, "status": "exposed" if node.get("exposed") else "not_exposed"}
 
-    if kind in ("contract", "governor"):
+    if kind in ("contract", "governor", "aragon_app"):
         return {**base, "status": "unknown", "blocking": [f"{address}: {u}" for u in node["unresolved"]]}
 
     subs = [evaluate(nodes, c["address"], stack) for c in node["controllers"]]
@@ -113,7 +113,7 @@ def rule_for(result: dict) -> str:
 def findings(nodes: dict, root: str) -> list[dict]:
     """One finding per control edge of a registered contract (or of the account itself)."""
     node = nodes[root]
-    if node["kind"] in ("eoa", "safe", "timelock", "governor"):
+    if node["kind"] in ("eoa", "safe", "timelock", "governor", "aragon_app"):
         edges = [{"role": "self", "address": root}]
         results = [evaluate(nodes, root)]
     else:

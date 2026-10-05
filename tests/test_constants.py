@@ -27,6 +27,7 @@ def k(text: str) -> str:
     (K.SEL_GET_ROLE_MEMBER, "getRoleMember(bytes32,uint256)"),
     (K.SEL_HAS_ROLE, "hasRole(bytes32,address)"),
     (K.SEL_VOTING_PERIOD, "votingPeriod()"),
+    (K.SEL_KERNEL, "kernel()"),
     (K.SEL_TOTAL_SUPPLY, "totalSupply()"),
     (K.SEL_DECIMALS, "decimals()"),
     (K.SEL_SAFE_EXEC, "execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)"),

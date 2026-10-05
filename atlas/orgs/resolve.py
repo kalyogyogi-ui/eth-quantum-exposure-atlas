@@ -20,7 +20,7 @@ CALL_NAMES = {
     K.SEL_GET_ROLE_MEMBER_COUNT: "getRoleMemberCount(bytes32)",
     K.SEL_GET_ROLE_MEMBER: "getRoleMember(bytes32,uint256)", K.SEL_VOTING_PERIOD: "votingPeriod()",
     K.SEL_TOTAL_SUPPLY: "totalSupply()", K.SEL_DECIMALS: "decimals()",
-    K.SEL_IMPLEMENTATION: "implementation()",
+    K.SEL_IMPLEMENTATION: "implementation()", K.SEL_KERNEL: "kernel()",
 }
 SLOT_NAMES = {
     K.SLOT_EIP1967_ADMIN: "eip1967.proxy.admin", K.SLOT_ZOS_ADMIN: "zos admin",
@@ -175,6 +175,17 @@ def resolve_node(probe: Probe, address: str) -> dict:
         node.update(kind="governor")
         node["unresolved"].append("token-voting governor: control rests with voters, whose key exposure "
                                   "is not measured here")
+        return node
+
+    kernel = word_to_address(probe.call(address, K.SEL_KERNEL) or "")
+    if kernel:
+        node.update(kind="aragon_app", kernel=kernel)
+        impl, mech = find_implementation(probe, address, code)
+        if impl:
+            node.update(implementation=impl, proxy_mechanism=mech)
+        node["unresolved"].append(f"Aragon app: permissions, including upgrades, are held in the ACL of "
+                                  f"kernel {kernel} and are not enumerable by call; they are only "
+                                  f"visible in SetPermission event history")
         return node
 
     # A generic contract: upgrade admin slots, beacon, owner(), AccessControl default admin.

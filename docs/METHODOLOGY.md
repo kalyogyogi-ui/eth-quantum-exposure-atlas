@@ -75,6 +75,7 @@ the organisation's own documentation. Every organisation defaults to `published:
 | `getMinDelay()` | OpenZeppelin timelock | proposers, if enumerable |
 | `delay()` and `admin()` | Compound-style timelock | admin |
 | `votingPeriod()` | governor | not followed (voters) |
+| `kernel()` | Aragon app | not followed (permissions sit in the kernel's ACL) |
 | EIP-1967 or zos admin slot, EIP-1967 beacon, `owner()`, enumerable `DEFAULT_ADMIN_ROLE` | owned contract | each controller |
 | none of these | contract, unresolved | — |
 
@@ -104,7 +105,8 @@ There is no score. Each report lists the evidence (call, result, block) for ever
 
 **Limits.** On-chain evidence only, so "not exposed" means none was found. Non-enumerable
 AccessControl roles and OpenZeppelin timelock proposers are only visible in event history and
-are reported as unresolved. Governors are not followed to voters. The Safe signature check
+are reported as unresolved. Governors are not followed to voters. Aragon apps (e.g. Lido, Curve DAO) keep
+permissions in an ACL that cannot be listed by call, so they are reported as unresolved. The Safe signature check
 covers Safe v1.1.1 and later (v1.0.0 emits no `ExecutionSuccess`). It only covers
 transactions sent straight to the Safe, within the scanned range. Executions through
 relayers or modules are counted as undecodable. Free RPC endpoints limit `eth_getLogs`
