@@ -1,1 +1,2 @@
 google-cloud-bigquery>=3.11
+pyyaml>=6

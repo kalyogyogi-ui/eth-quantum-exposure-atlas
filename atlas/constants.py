@@ -30,6 +30,34 @@ SLOT_ZOS_IMPL = "7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c
 # EIP-1822 (UUPS draft): keccak256("PROXIABLE")
 SLOT_EIP1822 = "c5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7"
 
+# EIP-1967: keccak256("eip1967.proxy.admin") - 1. Holds the address allowed to upgrade.
+SLOT_EIP1967_ADMIN = "b53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+# OpenZeppelin legacy (zos): keccak256("org.zeppelinos.proxy.admin"). Used by USDC.
+SLOT_ZOS_ADMIN = "10d6a54a4754c8869d6886b5f5d7fbfa5b4522237ea5c60d11bc4e7a1ff9390b"
+
+# --- Control interfaces probed by the per-organisation resolver (atlas/orgs) ---
+SEL_OWNER = "8da5cb5b"                    # owner()
+SEL_ADMIN = "f851a440"                    # admin()  (Compound-style timelock)
+SEL_GET_OWNERS = "a0e67e2b"               # getOwners()  (Safe)
+SEL_GET_THRESHOLD = "e75235b8"            # getThreshold()  (Safe)
+SEL_GET_MIN_DELAY = "f27a0c92"            # getMinDelay()  (OpenZeppelin TimelockController)
+SEL_DELAY = "6a42b8f8"                    # delay()  (Compound-style timelock)
+SEL_GET_ROLE_MEMBER_COUNT = "ca15c873"    # getRoleMemberCount(bytes32)
+SEL_GET_ROLE_MEMBER = "9010d07c"          # getRoleMember(bytes32,uint256)
+SEL_HAS_ROLE = "91d14854"                 # hasRole(bytes32,address)
+SEL_VOTING_PERIOD = "02a251a3"            # votingPeriod()  (Governor)
+SEL_TOTAL_SUPPLY = "18160ddd"             # totalSupply()
+SEL_DECIMALS = "313ce567"                 # decimals()
+# execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)  (Safe)
+SEL_SAFE_EXEC = "6a761202"
+DEFAULT_ADMIN_ROLE = "0" * 64             # OpenZeppelin AccessControl: bytes32(0)
+PROPOSER_ROLE = "b09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1"  # keccak256("PROPOSER_ROLE")
+# keccak256("ExecutionSuccess(bytes32,uint256)"). Safe v1.1.1-v1.3.0 put txHash in the log data;
+# v1.4.1 indexes it (topics[1]). v1.0.0 emits no ExecutionSuccess. Sources:
+# https://raw.githubusercontent.com/safe-global/safe-smart-account/v1.3.0/contracts/GnosisSafe.sol
+# https://raw.githubusercontent.com/safe-global/safe-smart-account/v1.4.1/contracts/Safe.sol
+TOPIC_SAFE_EXECUTION_SUCCESS = "0x442e715f626346e8c54381002da614f62bee8d27386535b2521ec8540898556e"
+
 # EIP-1167 minimal proxy runtime prefix; the next 20 bytes are the implementation.
 EIP1167_PREFIX = "363d3d373d3d3d363d73"
 # EIP-7702 delegation indicator: an EOA whose code is 0xef0100 || address.
