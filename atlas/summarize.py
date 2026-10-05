@@ -38,6 +38,7 @@ def token_values(exposure: list[dict], classes: dict, prices: dict) -> list[dict
                "exposed_holders": int(r["exposed_holders"] or 0),
                "upgradeable": c["upgradeable"], "mechanism": c["mechanism"],
                "permit_kind": c["permit_kind"], "priced": price is not None and dec is not None,
+               "amount_overflow": _truthy(r.get("amount_overflow")),
                "usd_exposed": 0.0, "usd_unexposed_eoa": 0.0}
         if row["priced"]:
             scale = Decimal(10) ** dec
@@ -90,6 +91,8 @@ def build(out_dir: Path, resolve_stats: dict | None = None) -> dict:
             "tokens_classified": len(classes),
             "permit_tokens_confirmed": len(vals),
             "permit_tokens_priced": sum(1 for v in vals if v["priced"]),
+            # Totals too large for BigQuery BIGNUMERIC are counted as 0 USD; report how many.
+            "permit_tokens_with_amount_overflow": sum(1 for v in vals if v["amount_overflow"]),
             "usd_exposed_all_permit_tokens": sum(v["usd_exposed"] for v in vals),
             "usd_exposed_no_upgrade_signal": sum(v["usd_exposed"] for v in vals if v["no_upgrade_signal"]),
             "usd_exposed_upgradeable": sum(v["usd_exposed"] for v in vals if not v["no_upgrade_signal"]),
@@ -143,6 +146,9 @@ def to_markdown(s: dict) -> str:
               f"| ...in tokens with no upgrade signal | {_usd(p['usd_exposed_no_upgrade_signal'])} |",
               f"| ...in upgradeable tokens | {_usd(p['usd_exposed_upgradeable'])} |",
               f"| Value held by EOAs with no on-chain key exposure | {_usd(p['usd_unexposed_eoa_all_permit_tokens'])} |", ""]
+        if p.get("permit_tokens_with_amount_overflow"):
+            L += [f"{p['permit_tokens_with_amount_overflow']:,} permit tokens have balances too large for "
+                  "BigQuery BIGNUMERIC (usually spam); their value is counted as zero.", ""]
         if p.get("resolution"):
             r = p["resolution"]
             L += [f"Proxy coverage: resolved {r['proxy_candidates_resolved']:,} of {r['proxy_candidates']:,} "

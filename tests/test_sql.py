@@ -1,5 +1,10 @@
 """Every SQL file renders completely and parses as BigQuery SQL."""
+import re
+from decimal import Decimal
+
 import pytest
+
+from atlas import constants as K
 
 from atlas import steps
 
@@ -38,3 +43,29 @@ def test_select_default_skips_optional():
     keys = [s.key for s in steps.select(None, False)]
     assert keys == ["01", "02", "03", "04", "05", "06"]
     assert [s.key for s in steps.select(["7"], False)] == ["07"]
+
+
+@pytest.mark.parametrize("name", FILES)
+def test_bignumeric_literals_fit(name):
+    """Regression: step 05 once cast '1e45' to BIGNUMERIC, which exceeds its range (~5.79e38)
+    and fails at run time. Every BIGNUMERIC literal must be inside the type's range."""
+    sql = steps.load(name, "myproj.atlas", extra=EXTRA)
+    for lit in re.findall(r"CAST\('([^']*)' AS BIGNUMERIC\)", sql):
+        assert abs(Decimal(lit)) <= Decimal(K.BIGNUMERIC_MAX), (name, lit)
+
+
+def test_amount_split_bounds_every_leg():
+    """hi * SPLIT + lo reconstructs any in-range amount, and per-leg parts stay small
+    enough that summing a billion legs cannot overflow BIGNUMERIC."""
+    split, top = int(K.AMOUNT_SPLIT), int(Decimal(K.BIGNUMERIC_MAX))
+    for v in (0, 1, split - 1, split, 10 ** 33 + 7, top):
+        hi, lo = divmod(v, split)
+        assert hi * split + lo == v and 0 <= lo < split
+    assert (top // split) * 10 ** 9 < top and split * 10 ** 9 < top
+
+
+def test_holdings_sum_is_overflow_safe():
+    sql = steps.load("05_build_token_holdings.sql", "p.w")
+    assert "SAFE_CAST(t.value AS BIGNUMERIC)" in sql and "SAFE_ADD(SAFE_MULTIPLY(" in sql
+    assert "balance_overflow" in sql
+    assert "amount_overflow" in steps.load("06_permit_token_exposure.sql", "p.w")

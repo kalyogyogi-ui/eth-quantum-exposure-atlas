@@ -40,9 +40,13 @@ EIP7702_PREFIX = "ef0100"
 PERMIT2 = "0x000000000022d473030f116ddee9f6b43ac78ba3"
 ZERO_ADDRESS = "0x" + "0" * 40
 
-# Transfers above this raw amount are treated as junk (spam tokens) so sums
-# cannot overflow BIGNUMERIC. Real ERC-20 supplies are far below 1e45.
-MAX_RAW_TRANSFER = "1e45"
+# BigQuery BIGNUMERIC holds integers up to about 5.79e38 (precision 76.76, scale 38).
+# https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#decimal_types
+# Transfer values above it (spam tokens) fail SAFE_CAST and are dropped, both legs at once.
+BIGNUMERIC_MAX = "578960446186580977117854925043439539266.34992332820282019728792003956564819967"
+# Raw amounts are summed as hi * 10**18 + lo so that adding millions of legs cannot
+# overflow BIGNUMERIC: hi <= 5.8e20 and lo < 1e18 for every leg.
+AMOUNT_SPLIT = "1000000000000000000"
 
 # PUSH4 opcode (0x63) followed by a selector: how solc embeds a dispatch check.
 PUSH4 = "63"
@@ -71,5 +75,5 @@ def sql_params() -> dict:
         "TOPIC_ERC20_APPROVAL": TOPIC_ERC20_APPROVAL,
         "PERMIT2_TOPIC": pad_topic_address(PERMIT2),
         "ZERO_ADDRESS": ZERO_ADDRESS,
-        "MAX_RAW_TRANSFER": MAX_RAW_TRANSFER,
+        "AMOUNT_SPLIT": AMOUNT_SPLIT,
     }
