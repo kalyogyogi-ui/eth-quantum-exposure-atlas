@@ -103,6 +103,11 @@ timelock is judged as a whole.
 
 There is no score. Each report lists the evidence (call, result, block) for every address.
 
+**Sponsors.** If an organisation in `orgs/registry.yaml` sponsors this project (GitHub
+Sponsors is the only channel), its report must say so before it is published. The report
+generator has no sponsor field yet, so this is checked by hand when a new sponsor appears
+(`docs/SPONSORS.md`, step 12).
+
 **Limits.** On-chain evidence only, so "not exposed" means none was found. Non-enumerable
 AccessControl roles and OpenZeppelin timelock proposers are only visible in event history and
 are reported as unresolved. Governors are not followed to voters. Aragon apps (e.g. Lido, Curve DAO) keep

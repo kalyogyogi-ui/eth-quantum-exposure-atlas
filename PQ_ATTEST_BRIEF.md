@@ -188,3 +188,16 @@ anything and without trusting the author.
 
 - Work happens on branch `claude/pq-attest-build-brief-g5zpiu` instead of `pq-attest`.
 - DefiLlama's free, keyless price API is approved for `atlas price`.
+
+## Decisions recorded on 6 Oct 2026
+
+- The owner asked for GitHub Sponsors on 6 Oct 2026. It is the only fundraising channel
+  approved, an exception to "fundraising" in section 6. No other platforms, no tokens,
+  coins, staking or sales, and no financial return to sponsors. Sponsors get no say over
+  the method, the findings, or which organisations are reported and when. No sponsor tier
+  gives early or private access to results, method changes or organisation reports. An
+  organisation report must say if that organisation (listed in `orgs/registry.yaml`)
+  sponsors the project. Sponsor text quotes no exposure figure (ETH amounts, shares, token
+  values or organisation results) that is not in a published snapshot.
+  `.github/FUNDING.yml` goes to the default branch only after GitHub approves the Sponsors
+  profile. Set-up steps: `docs/SPONSORS.md`.

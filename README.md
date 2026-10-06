@@ -142,10 +142,32 @@ atlas/attest/ EIP-712 attestations: schemas, signing, offline verification
 atlas/orgs/ per-organisation registry, control-graph resolver, rules, Safe signature check, reports
 orgs/       registry.yaml (contracts with source URLs); reports go to orgs/out/ (git-ignored)
 tests/      constants recomputed with keccak; SQL parsed as BigQuery; logic tested on fakes
-docs/       METHODOLOGY.md and a draft ethresear.ch post
+docs/       METHODOLOGY.md, a draft ethresear.ch post, and SPONSORS.md
 ```
 
 See [docs/METHODOLOGY.md](docs/METHODOLOGY.md) for definitions and limits.
+
+## Support this project
+
+**Status:** the code is written and tested offline. It has not yet run on live data, so
+there are no published figures yet.
+
+The project is designed to run on free tiers only, so sponsorship buys time, not services.
+It pays for:
+
+- time to finish the work: the first live run, the per-organisation reports, the free
+  public dashboard and signed attestations on a testnet;
+- keeping the measurement refreshed, with every snapshot published;
+- keeping the dashboard free for everyone, with no trackers.
+
+Sponsor through [GitHub Sponsors](https://github.com/sponsors/kalyogyogi-ui) (this link works
+only after the owner has applied and GitHub has approved the profile). There is no token,
+coin or sale. Sponsors get no financial return, no say over the findings, and no early
+access to results or organisation reports. See [docs/SPONSORS.md](docs/SPONSORS.md).
+
+### Thanks to sponsors
+
+None yet.
 
 ## License
 
