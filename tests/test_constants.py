@@ -17,6 +17,20 @@ def k(text: str) -> str:
     (K.SEL_PERMIT_DAI, "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"),
     (K.SEL_BALANCE_OF, "balanceOf(address)"),
     (K.SEL_IMPLEMENTATION, "implementation()"),
+    (K.SEL_OWNER, "owner()"),
+    (K.SEL_ADMIN, "admin()"),
+    (K.SEL_GET_OWNERS, "getOwners()"),
+    (K.SEL_GET_THRESHOLD, "getThreshold()"),
+    (K.SEL_GET_MIN_DELAY, "getMinDelay()"),
+    (K.SEL_DELAY, "delay()"),
+    (K.SEL_GET_ROLE_MEMBER_COUNT, "getRoleMemberCount(bytes32)"),
+    (K.SEL_GET_ROLE_MEMBER, "getRoleMember(bytes32,uint256)"),
+    (K.SEL_HAS_ROLE, "hasRole(bytes32,address)"),
+    (K.SEL_VOTING_PERIOD, "votingPeriod()"),
+    (K.SEL_KERNEL, "kernel()"),
+    (K.SEL_TOTAL_SUPPLY, "totalSupply()"),
+    (K.SEL_DECIMALS, "decimals()"),
+    (K.SEL_SAFE_EXEC, "execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)"),
 ])
 def test_selectors(value, signature):
     assert value == k(signature)[:8]
@@ -26,11 +40,18 @@ def test_approval_topic():
     assert K.TOPIC_ERC20_APPROVAL == "0x" + k("Approval(address,address,uint256)")
 
 
+def test_safe_execution_topic_and_roles():
+    assert K.TOPIC_SAFE_EXECUTION_SUCCESS == "0x" + k("ExecutionSuccess(bytes32,uint256)")
+    assert K.PROPOSER_ROLE == k("PROPOSER_ROLE")
+
+
 @pytest.mark.parametrize("value,label,minus_one", [
     (K.SLOT_EIP1967_IMPL, "eip1967.proxy.implementation", True),
     (K.SLOT_EIP1967_BEACON, "eip1967.proxy.beacon", True),
     (K.SLOT_ZOS_IMPL, "org.zeppelinos.proxy.implementation", False),
     (K.SLOT_EIP1822, "PROXIABLE", False),
+    (K.SLOT_EIP1967_ADMIN, "eip1967.proxy.admin", True),
+    (K.SLOT_ZOS_ADMIN, "org.zeppelinos.proxy.admin", False),
 ])
 def test_slots(value, label, minus_one):
     n = int(k(label), 16) - (1 if minus_one else 0)

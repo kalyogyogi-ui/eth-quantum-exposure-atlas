@@ -10,9 +10,27 @@ TIB = 1024 ** 4
 USD_PER_TIB = 6.25
 
 
+CREDENTIALS_ENV = "GOOGLE_APPLICATION_CREDENTIALS_JSON"
+SCOPES = ["https://www.googleapis.com/auth/bigquery"]
+
+
 def client(project: str | None):
+    """BigQuery client. Uses a service-account key held in $GOOGLE_APPLICATION_CREDENTIALS_JSON
+    (the key's JSON text, for environments where files are awkward) when set, otherwise
+    Application Default Credentials (`gcloud auth application-default login`)."""
+    import json
+    import os
     from google.cloud import bigquery  # imported lazily so tests run without it
-    return bigquery.Client(project=project)
+    raw = os.environ.get(CREDENTIALS_ENV)
+    if not raw:
+        return bigquery.Client(project=project)
+    from google.oauth2 import service_account
+    try:
+        info = json.loads(raw)
+    except json.JSONDecodeError:
+        raise SystemExit(f"{CREDENTIALS_ENV} is set but is not valid JSON (paste the whole key file)") from None
+    creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
+    return bigquery.Client(project=project or info.get("project_id"), credentials=creds)
 
 
 def ensure_dataset(bq, work: str, location: str = "US") -> None:

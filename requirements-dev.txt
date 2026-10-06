@@ -1,4 +1,3 @@
 -r requirements.txt
 pytest>=8
-pycryptodome>=3.20
 sqlglot>=25

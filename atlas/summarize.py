@@ -19,6 +19,15 @@ def _f(v, default=0.0) -> float:
         return default
 
 
+def _year(ts) -> int | None:
+    """Year of a timestamp string such as '2026-10-04 23:59:59+00:00', or None."""
+    t = str(ts or "").strip()
+    return int(t[:4]) if len(t) >= 4 and t[:4].isdigit() else None
+
+
+DORMANT_YEARS = 5
+
+
 def _truthy(v) -> bool:
     return str(v).lower() in ("true", "1")
 
@@ -38,6 +47,7 @@ def token_values(exposure: list[dict], classes: dict, prices: dict) -> list[dict
                "exposed_holders": int(r["exposed_holders"] or 0),
                "upgradeable": c["upgradeable"], "mechanism": c["mechanism"],
                "permit_kind": c["permit_kind"], "priced": price is not None and dec is not None,
+               "amount_overflow": _truthy(r.get("amount_overflow")),
                "usd_exposed": 0.0, "usd_unexposed_eoa": 0.0}
         if row["priced"]:
             scale = Decimal(10) ** dec
@@ -78,8 +88,20 @@ def build(out_dir: Path, resolve_stats: dict | None = None) -> dict:
         }
 
     if dist:
-        dormant = sum(_f(r["eth"]) for r in dist if r["last_sent_year"] and int(r["last_sent_year"]) <= datetime.now().year - 5)
-        summary["dormancy"] = {"eth_exposed_last_active_5plus_years_ago": dormant}
+        # Dormancy is measured from the year of the latest transaction in the data, not from
+        # the day summarize runs, so re-running it later gives the same figure.
+        ref = _year(s02[0].get("data_freshness_last_tx")) if s02 else None
+        if ref is None:
+            summary["dormancy"] = {"eth_exposed_last_active_5plus_years_ago": None, "reference_year": None,
+                                   "note": "not computed: no data-freshness timestamp in 02_exposed_eth_summary.csv"}
+        else:
+            cutoff = ref - DORMANT_YEARS
+            summary["dormancy"] = {
+                "eth_exposed_last_active_5plus_years_ago": sum(
+                    _f(r["eth"]) for r in dist if r["last_sent_year"] and int(r["last_sent_year"]) <= cutoff),
+                "reference_year": ref,
+                "last_sent_year_at_most": cutoff,
+            }
 
     if exposure and classes:
         vals = token_values(exposure, classes, prices)
@@ -90,6 +112,8 @@ def build(out_dir: Path, resolve_stats: dict | None = None) -> dict:
             "tokens_classified": len(classes),
             "permit_tokens_confirmed": len(vals),
             "permit_tokens_priced": sum(1 for v in vals if v["priced"]),
+            # Totals too large for BigQuery BIGNUMERIC are counted as 0 USD; report how many.
+            "permit_tokens_with_amount_overflow": sum(1 for v in vals if v["amount_overflow"]),
             "usd_exposed_all_permit_tokens": sum(v["usd_exposed"] for v in vals),
             "usd_exposed_no_upgrade_signal": sum(v["usd_exposed"] for v in vals if v["no_upgrade_signal"]),
             "usd_exposed_upgradeable": sum(v["usd_exposed"] for v in vals if not v["no_upgrade_signal"]),
@@ -130,8 +154,13 @@ def to_markdown(s: dict) -> str:
               f"| ETH in the 1,000 largest exposed EOAs | {e['eth_in_top1000_exposed_eoas']:,.0f} ETH |",
               f"| Data freshness (latest tx seen) | {e['data_freshness_last_tx']} |", ""]
     if "dormancy" in s:
-        L += [f"Exposed ETH in accounts inactive for 5+ years: "
-              f"{s['dormancy']['eth_exposed_last_active_5plus_years_ago']:,.0f} ETH.", ""]
+        d = s["dormancy"]
+        if d["eth_exposed_last_active_5plus_years_ago"] is None:
+            L += [f"Dormant exposed ETH: {d['note']}.", ""]
+        else:
+            L += [f"Exposed ETH in accounts inactive for 5+ years (last transaction in "
+                  f"{d['last_sent_year_at_most']} or earlier; data runs to {d['reference_year']}): "
+                  f"{d['eth_exposed_last_active_5plus_years_ago']:,.0f} ETH.", ""]
     if "permit" in s:
         p = s["permit"]
         L += ["## 2. Token value reachable by permit signatures", "",
@@ -143,6 +172,9 @@ def to_markdown(s: dict) -> str:
               f"| ...in tokens with no upgrade signal | {_usd(p['usd_exposed_no_upgrade_signal'])} |",
               f"| ...in upgradeable tokens | {_usd(p['usd_exposed_upgradeable'])} |",
               f"| Value held by EOAs with no on-chain key exposure | {_usd(p['usd_unexposed_eoa_all_permit_tokens'])} |", ""]
+        if p.get("permit_tokens_with_amount_overflow"):
+            L += [f"{p['permit_tokens_with_amount_overflow']:,} permit tokens have balances too large for "
+                  "BigQuery BIGNUMERIC (usually spam); their value is counted as zero.", ""]
         if p.get("resolution"):
             r = p["resolution"]
             L += [f"Proxy coverage: resolved {r['proxy_candidates_resolved']:,} of {r['proxy_candidates']:,} "

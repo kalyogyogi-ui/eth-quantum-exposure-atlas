@@ -1,0 +1,485 @@
+# Organisations for `atlas orgs`. Every address is copied from the organisation's own
+# repository (source_url, fetched 2026-10-05) and was checked to appear verbatim in it.
+# Re-check with: python -m atlas orgs-check
+# published: false keeps an organisation off the public site until the owner has
+# notified it and flips the flag by hand.
+organisations:
+- slug: lido
+  name: Lido
+  category: liquid-staking
+  published: false
+  contracts:
+  - label: stETH token
+    address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
+    role: token
+    source_url: https://raw.githubusercontent.com/lidofinance/docs/main/docs/deployed-contracts/index.md
+  - label: wstETH token
+    address: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'
+    role: token
+    source_url: https://raw.githubusercontent.com/lidofinance/docs/main/docs/deployed-contracts/index.md
+  - label: LDO token
+    address: '0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32'
+    role: token
+    source_url: https://raw.githubusercontent.com/lidofinance/docs/main/docs/deployed-contracts/index.md
+  - label: Withdrawal Queue ERC721
+    address: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1'
+    role: vault
+    source_url: https://raw.githubusercontent.com/lidofinance/docs/main/docs/deployed-contracts/index.md
+  - label: Aragon Agent
+    address: '0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c'
+    role: treasury
+    source_url: https://raw.githubusercontent.com/lidofinance/docs/main/docs/deployed-contracts/index.md
+  - label: Aragon Voting
+    address: '0x2e59A20f205bB85a89C53f1936454680651E618e'
+    role: governance
+    source_url: https://raw.githubusercontent.com/lidofinance/docs/main/docs/deployed-contracts/index.md
+  - label: Emergency Protected Timelock
+    address: '0xCE0425301C85c5Ea2A0873A2dEe44d78E02D2316'
+    role: governance
+    source_url: https://raw.githubusercontent.com/lidofinance/docs/main/docs/deployed-contracts/index.md
+- slug: aave
+  name: Aave
+  category: lending
+  published: false
+  contracts:
+  - label: Aave v3 Pool
+    address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'
+    role: vault
+    source_url: https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/AaveV3Ethereum.sol
+  - label: Collector
+    address: '0x464C71f6c2F760DdA6093dCB91C24c39e5d6e18c'
+    role: treasury
+    source_url: https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/AaveV3Ethereum.sol
+  - label: AAVE token
+    address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9'
+    role: token
+    source_url: https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/AaveV3Ethereum.sol
+  - label: GHO token
+    address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f'
+    role: token
+    source_url: https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/AaveV3Ethereum.sol
+  - label: Governance executor level 1 (ACL admin)
+    address: '0x5300A1a15135EA4dc7aD5a167152C01EFc9b192A'
+    role: governance
+    source_url: https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/GovernanceV3Ethereum.sol
+  - label: Governance executor level 2
+    address: '0x17Dd33Ed0e3dD2a80E37489B8A63063161BE6957'
+    role: governance
+    source_url: https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/GovernanceV3Ethereum.sol
+  - label: Governance guardian
+    address: '0xCe52ab41C40575B072A18C9700091Ccbe4A06710'
+    role: governance
+    source_url: https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/GovernanceV3Ethereum.sol
+- slug: compound
+  name: Compound
+  category: lending
+  published: false
+  contracts:
+  - label: Comptroller (v2)
+    address: '0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B'
+    role: vault
+    source_url: https://raw.githubusercontent.com/compound-finance/compound-protocol/master/networks/mainnet.json
+  - label: cUSDCv3 (Comet)
+    address: '0xc3d688B66703497DAA19211EEdff47f25384cdc3'
+    role: vault
+    source_url: https://raw.githubusercontent.com/compound-finance/comet/main/deployments/mainnet/usdc/roots.json
+  - label: Comet configurator
+    address: '0x316f9708bB98af7dA9c68C1C3b5e79039cD336E3'
+    role: governance
+    source_url: https://raw.githubusercontent.com/compound-finance/comet/main/deployments/mainnet/usdc/roots.json
+  - label: COMP token
+    address: '0xc00e94Cb662C3520282E6f5717214004A7f26888'
+    role: token
+    source_url: https://raw.githubusercontent.com/compound-finance/compound-protocol/master/networks/mainnet.json
+  - label: Timelock
+    address: '0x6d903f6003cca6255D85CcA4D3B5E5146dC33925'
+    role: governance
+    source_url: https://raw.githubusercontent.com/compound-finance/compound-protocol/master/networks/mainnet.json
+  - label: GovernorBravo
+    address: '0xc0da02939e1441f497fd74f78ce7decb17b66529'
+    role: governance
+    source_url: https://raw.githubusercontent.com/compound-finance/compound-protocol/master/networks/mainnet.json
+- slug: balancer
+  name: Balancer
+  category: dex
+  published: false
+  contracts:
+  - label: Vault (v2)
+    address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8'
+    role: vault
+    source_url: https://raw.githubusercontent.com/balancer/balancer-deployments/master/addresses/mainnet.json
+  - label: Vault (v3)
+    address: '0xbA1333333333a1BA1108E8412f11850A5C319bA9'
+    role: vault
+    source_url: https://raw.githubusercontent.com/balancer/balancer-deployments/master/addresses/mainnet.json
+  - label: Authorizer
+    address: '0xA331D84eC860Bf466b4CdCcFb4aC09a1B43F3aE6'
+    role: governance
+    source_url: https://raw.githubusercontent.com/balancer/balancer-deployments/master/addresses/mainnet.json
+  - label: Protocol fees collector
+    address: '0xce88686553686DA562CE7Cea497CE749DA109f9F'
+    role: treasury
+    source_url: https://raw.githubusercontent.com/balancer/balancer-deployments/master/addresses/mainnet.json
+- slug: optimism
+  name: OP Mainnet (Optimism)
+  category: rollup
+  published: false
+  contracts:
+  - label: L1StandardBridge
+    address: '0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/main/superchain/configs/mainnet/op.toml
+  - label: OptimismPortal
+    address: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/main/superchain/configs/mainnet/op.toml
+  - label: SystemConfig
+    address: '0x229047fed2591dbec1eF1118d64F7aF3dB9EB290'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/main/superchain/configs/mainnet/op.toml
+  - label: ProxyAdmin owner
+    address: '0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/main/superchain/configs/mainnet/op.toml
+- slug: eigenlayer
+  name: EigenLayer
+  category: restaking
+  published: false
+  contracts:
+  - label: StrategyManager
+    address: '0x858646372CC42E1A627fcE94aa7A7033e7CF075A'
+    role: vault
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: EigenPodManager
+    address: '0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338'
+    role: vault
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: DelegationManager
+    address: '0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A'
+    role: governance
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: EIGEN token
+    address: '0xec53bf9167f50cdeb3ae105f56099aaab9061f83'
+    role: token
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: bEIGEN token
+    address: '0x83E9115d334D248Ce39a6f36144aEaB5b3456e75'
+    role: token
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: TimelockController
+    address: '0xC06Fd4F821eaC1fF1ae8067b36342899b57BAa2d'
+    role: governance
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: ProxyAdmin
+    address: '0x8b9566AdA63B64d1E1dcF1418b43fd1433b72444'
+    role: governance
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: Executor multisig
+    address: '0x369e6F597e22EaB55fFb173C6d9cD234BD699111'
+    role: governance
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+  - label: Pauser multisig
+    address: '0x5050389572f2d220ad927CcbeA0D406831012390'
+    role: governance
+    source_url: https://raw.githubusercontent.com/Layr-Labs/eigenlayer-contracts/main/README.md
+- slug: polygon
+  name: Polygon PoS
+  category: bridge
+  published: false
+  contracts:
+  - label: RootChainProxy
+    address: '0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/maticnetwork/static/master/network/mainnet/v1/index.json
+  - label: DepositManagerProxy
+    address: '0x401F6c983eA34274ec46f84D70b31C151321188b'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/maticnetwork/static/master/network/mainnet/v1/index.json
+  - label: ERC20Predicate
+    address: '0x4EeA1780c06709D7FA0BCaA6D0f1aB29673586c0'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/maticnetwork/static/master/network/mainnet/v1/index.json
+  - label: StakeManagerProxy
+    address: '0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908'
+    role: vault
+    source_url: https://raw.githubusercontent.com/maticnetwork/static/master/network/mainnet/v1/index.json
+  - label: MATIC token
+    address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0'
+    role: token
+    source_url: https://raw.githubusercontent.com/maticnetwork/static/master/network/mainnet/v1/index.json
+  - label: GovernanceProxy
+    address: '0x6e7a5820baD6cebA8Ef5ea69c0C92EbbDAc9CE48'
+    role: governance
+    source_url: https://raw.githubusercontent.com/maticnetwork/static/master/network/mainnet/v1/index.json
+  - label: Timelock
+    address: '0xCaf0aa768A3AE1297DF20072419Db8Bb8b5C8cEf'
+    role: governance
+    source_url: https://raw.githubusercontent.com/maticnetwork/static/master/network/mainnet/v1/index.json
+- slug: paxos
+  name: Paxos
+  category: issuer
+  published: false
+  contracts:
+  - label: PayPal USD (PYUSD)
+    address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8'
+    role: token
+    source_url: https://raw.githubusercontent.com/paxosglobal/pyusd-contract/master/README.md
+  - label: Pax Gold (PAXG)
+    address: '0x45804880De22913dAFE09f4980848ECE6EcbAf78'
+    role: token
+    source_url: https://raw.githubusercontent.com/paxosglobal/paxos-gold-contract/master/README.md
+  - label: Pax Dollar (USDP)
+    address: '0x8e870d67f660d95d5be530380d0ec0bd388289e1'
+    role: token
+    source_url: https://raw.githubusercontent.com/paxosglobal/usdp-contracts/master/README.md
+- slug: curve
+  name: Curve DAO
+  category: dex
+  published: false
+  contracts:
+  - label: CRV token
+    address: '0xD533a949740bb3306d119CC777fa900bA034cd52'
+    role: token
+    source_url: https://raw.githubusercontent.com/CurveDocs/curve-docs/master/docs/references/deployed-contracts.md
+  - label: veCRV (voting escrow)
+    address: '0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2'
+    role: vault
+    source_url: https://raw.githubusercontent.com/CurveDocs/curve-docs/master/docs/references/deployed-contracts.md
+  - label: Fee distributor
+    address: '0xa464e6dcda8ac41e03616f95f4bc98a13b8922dc'
+    role: treasury
+    source_url: https://raw.githubusercontent.com/CurveDocs/curve-docs/master/docs/references/deployed-contracts.md
+  - label: Ownership agent
+    address: '0x40907540d8a6C65c637785e8f8B742ae6b0b9968'
+    role: governance
+    source_url: https://raw.githubusercontent.com/CurveDocs/curve-docs/master/docs/references/deployed-contracts.md
+  - label: Parameter agent
+    address: '0x4EEb3bA4f221cA16ed4A0cC7254E2E32DF948c5f'
+    role: governance
+    source_url: https://raw.githubusercontent.com/CurveDocs/curve-docs/master/docs/references/deployed-contracts.md
+  - label: Ownership voting
+    address: '0xe478de485ad2fe566d49342cbd03e49ed7db3356'
+    role: governance
+    source_url: https://raw.githubusercontent.com/CurveDocs/curve-docs/master/docs/references/deployed-contracts.md
+  - label: Emergency DAO
+    address: '0x467947EE34aF926cF1DCac093870f613C96B1E0c'
+    role: governance
+    source_url: https://raw.githubusercontent.com/CurveDocs/curve-docs/master/docs/references/deployed-contracts.md
+- slug: ens
+  name: ENS
+  category: naming
+  published: false
+  contracts:
+  - label: ENSRegistry
+    address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ensdomains/ens-contracts/staging/deployments/mainnet/ENSRegistry.json
+  - label: Root
+    address: '0xaB528d626EC275E3faD363fF1393A41F581c5897'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ensdomains/ens-contracts/staging/deployments/mainnet/Root.json
+  - label: BaseRegistrar (.eth names)
+    address: '0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85'
+    role: token
+    source_url: https://raw.githubusercontent.com/ensdomains/ens-contracts/staging/deployments/mainnet/BaseRegistrarImplementation.json
+  - label: NameWrapper
+    address: '0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401'
+    role: token
+    source_url: https://raw.githubusercontent.com/ensdomains/ens-contracts/staging/deployments/mainnet/NameWrapper.json
+- slug: pendle
+  name: Pendle
+  category: yield
+  published: false
+  contracts:
+  - label: PENDLE token
+    address: '0x808507121b80c02388fad14726482e061b8da827'
+    role: token
+    source_url: https://raw.githubusercontent.com/pendle-finance/pendle-core-v2-public/main/deployments/1-core.json
+  - label: Governance proxy
+    address: '0x2aD631F72fB16d91c4953A7f4260A97C2fE2f31e'
+    role: governance
+    source_url: https://raw.githubusercontent.com/pendle-finance/pendle-core-v2-public/main/deployments/1-core.json
+  - label: Governance
+    address: '0x8119EC16F0573B7dAc7C0CB94EB504FB32456ee1'
+    role: governance
+    source_url: https://raw.githubusercontent.com/pendle-finance/pendle-core-v2-public/main/deployments/1-core.json
+  - label: Treasury
+    address: '0x8270400d528c34e1596EF367eeDEc99080A1b592'
+    role: treasury
+    source_url: https://raw.githubusercontent.com/pendle-finance/pendle-core-v2-public/main/deployments/1-core.json
+  - label: Dev multisig
+    address: '0xE6F0489ED91dc27f40f9dbe8f81fccbFC16b9cb1'
+    role: governance
+    source_url: https://raw.githubusercontent.com/pendle-finance/pendle-core-v2-public/main/deployments/1-core.json
+  - label: Router
+    address: '0x888888888889758F76e7103c6CbF23ABbF58F946'
+    role: vault
+    source_url: https://raw.githubusercontent.com/pendle-finance/pendle-core-v2-public/main/deployments/1-core.json
+- slug: spark
+  name: Spark
+  category: lending
+  published: false
+  contracts:
+  - label: SPK token
+    address: '0xc20059e0317DE91738d13af027DfC4a50781b066'
+    role: token
+    source_url: https://raw.githubusercontent.com/marsfoundation/spark-address-registry/master/src/Ethereum.sol
+  - label: stSPK
+    address: '0xc6132FAF04627c8d05d6E759FAbB331Ef2D8F8fD'
+    role: vault
+    source_url: https://raw.githubusercontent.com/marsfoundation/spark-address-registry/master/src/Ethereum.sol
+  - label: Spark proxy (governance executor)
+    address: '0x3300f198988e4C9C63F75dF86De36421f06af8c4'
+    role: governance
+    source_url: https://raw.githubusercontent.com/marsfoundation/spark-address-registry/master/src/Ethereum.sol
+  - label: SparkLend freezer multisig
+    address: '0x44efFc473e81632B12486866AA1678edbb7BEeC3'
+    role: governance
+    source_url: https://raw.githubusercontent.com/marsfoundation/spark-address-registry/master/src/Ethereum.sol
+- slug: scroll
+  name: Scroll
+  category: rollup
+  published: false
+  contracts:
+  - label: L1 rollup (ScrollChain)
+    address: '0xa13BAF47339d63B743e7Da8741db5456DAc1E556'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/scroll-tech/scroll-documentation/develop/src/content/docs/en/developers/scroll-contracts.mdx
+  - label: L1 gateway router
+    address: '0xF8B1378579659D8F7EE5f3C929c2f3E332E41Fd6'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/scroll-tech/scroll-documentation/develop/src/content/docs/en/developers/scroll-contracts.mdx
+  - label: L1 messenger
+    address: '0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/scroll-tech/scroll-documentation/develop/src/content/docs/en/developers/scroll-contracts.mdx
+  - label: L1 ETH gateway
+    address: '0x7F2b8C31F88B6006c382775eea88297Ec1e3E905'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/scroll-tech/scroll-documentation/develop/src/content/docs/en/developers/scroll-contracts.mdx
+  - label: L1 ERC20 standard gateway
+    address: '0xD8A791fE2bE73eb6E6cF1eb0cb3F36adC9B3F8f9'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/scroll-tech/scroll-documentation/develop/src/content/docs/en/developers/scroll-contracts.mdx
+- slug: gnosis
+  name: Gnosis Chain bridges
+  category: bridge
+  published: false
+  contracts:
+  - label: AMB (foreign, Ethereum side)
+    address: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/gnosischain/documentation/main/docs/bridges/About%20Token%20Bridges/omnibridge.md
+  - label: Omnibridge multi-token mediator
+    address: '0x88ad09518695c6c3712AC10a214bE5109a655671'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/gnosischain/documentation/main/docs/bridges/About%20Token%20Bridges/omnibridge.md
+- slug: frax
+  name: Frax
+  category: stablecoin
+  published: false
+  contracts:
+  - label: FRAX token
+    address: '0x853d955aCEf822Db058eb8505911ED77F175b99e'
+    role: token
+    source_url: https://raw.githubusercontent.com/FraxFinance/frax-solidity/master/src/types/constants.ts
+  - label: FXS token
+    address: '0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0'
+    role: token
+    source_url: https://raw.githubusercontent.com/FraxFinance/frax-solidity/master/src/types/constants.ts
+  - label: veFXS
+    address: '0xc8418aF6358FFddA74e09Ca9CC3Fe03Ca6aDC5b0'
+    role: vault
+    source_url: https://raw.githubusercontent.com/FraxFinance/frax-solidity/master/src/types/constants.ts
+- slug: arbitrum
+  name: Arbitrum DAO (Ethereum side)
+  category: rollup
+  published: false
+  contracts:
+  - label: ARB token (bridged)
+    address: '0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1'
+    role: token
+    source_url: https://raw.githubusercontent.com/ArbitrumFoundation/docs/main/docs/deployment-addresses.md
+  - label: ARB gateway (L1)
+    address: '0xbbcE8aA77782F13D4202a230d978F361B011dB27'
+    role: bridge
+    source_url: https://raw.githubusercontent.com/ArbitrumFoundation/docs/main/docs/deployment-addresses.md
+  - label: L1 upgrade executor
+    address: '0x3ffFbAdAF827559da092217e474760E2b2c3CeDd'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ArbitrumFoundation/docs/main/docs/deployment-addresses.md
+  - label: L1 timelock
+    address: '0xE6841D92B0C345144506576eC13ECf5103aC7f49'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ArbitrumFoundation/docs/main/docs/deployment-addresses.md
+  - label: Security Council (L1, emergency)
+    address: '0xF06E95eF589D9c38af242a8AAee8375f14023F85'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ArbitrumFoundation/docs/main/docs/deployment-addresses.md
+  - label: L1 proxy admin
+    address: '0x5613AF0474EB9c528A34701A5b1662E3C8FA0678'
+    role: governance
+    source_url: https://raw.githubusercontent.com/ArbitrumFoundation/docs/main/docs/deployment-addresses.md
+- slug: yearn
+  name: Yearn
+  category: yield
+  published: false
+  contracts:
+  - label: YFI token
+    address: '0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e'
+    role: token
+    source_url: https://raw.githubusercontent.com/yearn/yearn-devdocs/master/docs/developers/addresses/core-contracts.md
+  - label: Yearn multisig (ychad.eth)
+    address: '0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52'
+    role: governance
+    source_url: https://raw.githubusercontent.com/yearn/yearn-devdocs/master/docs/developers/addresses/core-contracts.md
+  - label: Treasury
+    address: '0x93A62dA5a14C80f265DAbC077fCEE437B1a0Efde'
+    role: treasury
+    source_url: https://raw.githubusercontent.com/yearn/yearn-devdocs/master/docs/developers/addresses/core-contracts.md
+  - label: Timelock
+    address: '0x88Ba032be87d5EF1fbE87336B7090767F367BF73'
+    role: governance
+    source_url: https://raw.githubusercontent.com/yearn/yearn-devdocs/master/docs/developers/addresses/core-contracts.md
+- slug: liquity
+  name: Liquity (v1)
+  category: stablecoin
+  published: false
+  contracts:
+  - label: LUSD token
+    address: '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0'
+    role: token
+    source_url: https://raw.githubusercontent.com/liquity/dev/main/packages/lib-ethers/deployments/default/mainnet.json
+  - label: LQTY token
+    address: '0x6DEA81C8171D0bA574754EF6F8b412F2Ed88c54D'
+    role: token
+    source_url: https://raw.githubusercontent.com/liquity/dev/main/packages/lib-ethers/deployments/default/mainnet.json
+  - label: TroveManager
+    address: '0xA39739EF8b0231DbFA0DcdA07d7e29faAbCf4bb2'
+    role: vault
+    source_url: https://raw.githubusercontent.com/liquity/dev/main/packages/lib-ethers/deployments/default/mainnet.json
+  - label: ActivePool
+    address: '0xDf9Eb223bAFBE5c5271415C75aeCD68C21fE3D7F'
+    role: vault
+    source_url: https://raw.githubusercontent.com/liquity/dev/main/packages/lib-ethers/deployments/default/mainnet.json
+  - label: StabilityPool
+    address: '0x66017D22b0f8556afDd19FC67041899Eb65a21bb'
+    role: vault
+    source_url: https://raw.githubusercontent.com/liquity/dev/main/packages/lib-ethers/deployments/default/mainnet.json
+- slug: uniswap
+  name: Uniswap
+  category: dex
+  published: false
+  contracts:
+  - label: v4 PoolManager
+    address: '0x000000000004444c5dc75cB358380D2e3dE08A90'
+    role: vault
+    source_url: https://raw.githubusercontent.com/Uniswap/contracts/main/deployments/1.md
+  - label: v3 factory (fee switch owner)
+    address: '0x1F98431c8aD98523631AE4a59f267346ea31F984'
+    role: governance
+    source_url: https://raw.githubusercontent.com/Uniswap/contracts/main/deployments/1.md
+  - label: v2 factory
+    address: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
+    role: governance
+    source_url: https://raw.githubusercontent.com/Uniswap/contracts/main/deployments/1.md

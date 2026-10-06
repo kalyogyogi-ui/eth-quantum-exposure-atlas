@@ -4,7 +4,7 @@ An open, reproducible measurement of how much value on Ethereum a future quantum
 computer could steal, including a surface nobody has measured before: token value
 reachable through ECDSA `permit` signatures in contracts that cannot be changed.
 
-**Status:** pipeline complete and unit-tested (39 tests); not yet run on live data.
+**Status:** pipeline complete and unit-tested (157 tests); not yet run on live data.
 
 ## What it measures
 
@@ -33,15 +33,23 @@ already measured it (about 2.5M ETH in admin-controlled contracts). Cite it inst
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements-dev.txt
-python -m pytest                # 39 tests, no network needed
+python -m pytest                # 157 tests, no network needed
 
 gcloud auth application-default login
+# ...or, where a browser login is not possible (e.g. a cloud runner), put a service-account
+# key with the "BigQuery User" role in an environment variable as JSON text:
+#   GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type": "service_account", ...}'
 set P=your-gcp-project-id       # macOS/Linux: export P=your-gcp-project-id
 
-# 1. Price every query first. Runs nothing, costs nothing.
+# 1. Price every query first, including verify's. Runs nothing, costs nothing.
+#    Steps that read work tables can only be priced once earlier steps have built them,
+#    so plan again after running 01 and 04.
 python -m atlas plan --project %P% --work %P%.atlas
 
-# 2. Run the BigQuery steps (each query is hard-capped at --max-gb).
+# 2. Run the BigQuery steps. Each query is dry-run again, refused if it would pass the
+#    monthly budget (--budget-gb, default 900 GiB, or ATLAS_MONTHLY_BUDGET_GIB), and
+#    hard-capped by BigQuery at the smaller of --max-gb and the budget left.
+#    Every job is logged to out/bq_ledger.jsonl.
 python -m atlas run --project %P% --work %P%.atlas
 
 # 3. Resolve proxy tokens (USDC, stETH and many others are proxies) and confirm permit.
@@ -54,9 +62,59 @@ python -m atlas summarize          # writes out/SUMMARY.md and out/summary.json
 # 5. Independent check against a live node.
 python -m atlas verify --project %P% --work %P%.atlas --rpc-url https://ethereum-rpc.publicnode.com
 
+# 6. Freeze the outputs into data/snapshots/YYYY-MM-DD/ with a manifest
+#    (commit hash, data freshness, bytes billed per step, SHA-256 of every file).
+python -m atlas snapshot
+
 # Optional: Permit2 approvals (scans the large logs table; run `plan --include-optional` first).
 python -m atlas run --project %P% --work %P%.atlas --steps 07 08 --include-optional
 ```
+
+## Per-organisation exposure
+
+Separate from the headline numbers: for each organisation in `orgs/registry.yaml`, which keys
+control its contracts, and are those keys quantum-exposed? RPC only, no BigQuery.
+
+```bash
+# Reads every address at one block; prints the block so a re-run gives identical files.
+python -m atlas orgs --rpc-url https://ethereum-rpc.publicnode.com [--slug lido] [--block N]
+# Also look for Safe owners revealed by their signatures (slow on free endpoints):
+python -m atlas orgs --rpc-url URL --sig-scan-from 10000000
+# Confirm every registry address still appears in the organisation's own source file:
+python -m atlas orgs-check
+```
+
+Writes `orgs/out/<slug>.json` and `<slug>.md`: findings by rule (R0–R5), the control graph,
+unresolved items, and the evidence for every read. `orgs/out/` is git-ignored: every report
+is a draft until the owner sets `published: true`, after notifying the organisation.
+
+## Signed attestations
+
+Each snapshot (via its `manifest.json`) and each organisation report can carry an EIP-712
+signature in a `<file>.attestation.json` beside it. Verifying needs no network and no key:
+
+```bash
+python -m atlas attest verify data/snapshots/2026-10-05/manifest.json.attestation.json
+```
+
+It checks the covered file's SHA-256, the EIP-712 digest, the signature, and that the signer
+is listed in `attest/signers.json` (or given with `--signer`). It prints PASS or FAIL for
+each check and says VERIFIED only if all of them pass. A valid signature from a key that is
+not listed is reported as NOT VERIFIED.
+
+Signing (owner only) reads a key used for nothing else from `ATLAS_ATTEST_KEY`. The key is
+never printed or written anywhere:
+
+```bash
+# once, on your own machine: make a fresh key and keep it out of the repo
+python -c "import secrets; print(secrets.token_hex(32))"
+export ATLAS_ATTEST_KEY=...            # Windows: set ATLAS_ATTEST_KEY=...
+python -m atlas attest sign-snapshot data/snapshots/2026-10-05
+python -m atlas attest sign-org orgs/out/lido.json
+```
+
+Then add the printed signer address to `attest/signers.json` and commit it. The schemas are
+in `atlas/attest/schemas/`.
 
 ## Outputs (`out/`)
 
@@ -69,17 +127,47 @@ python -m atlas run --project %P% --work %P%.atlas --steps 07 08 --include-optio
 | `token_classification.csv` | Permit support, proxy mechanism, upgradeability per token |
 | `prices.csv` | DefiLlama prices used |
 | `VERIFY.md`, `verify.json` | Node spot-check results |
+| `bq_ledger.jsonl` | Every BigQuery job: estimate, bytes billed, job id (not copied into snapshots; the manifest summarises it) |
+
+The budget ledger only counts queries run through `atlas` on this machine. As a backstop,
+set a custom quota on query usage per day in your Google Cloud project; Google enforces
+it whatever runs the query.
 
 ## Layout
 
 ```
 sql/        one file per step; constants are injected from atlas/constants.py
 atlas/      CLI, BigQuery runner, RPC client, proxy resolver, pricing, summary, verification
+atlas/attest/ EIP-712 attestations: schemas, signing, offline verification
+atlas/orgs/ per-organisation registry, control-graph resolver, rules, Safe signature check, reports
+orgs/       registry.yaml (contracts with source URLs); reports go to orgs/out/ (git-ignored)
 tests/      constants recomputed with keccak; SQL parsed as BigQuery; logic tested on fakes
-docs/       METHODOLOGY.md and a draft ethresear.ch post
+docs/       METHODOLOGY.md, a draft ethresear.ch post, and SPONSORS.md
 ```
 
 See [docs/METHODOLOGY.md](docs/METHODOLOGY.md) for definitions and limits.
+
+## Support this project
+
+**Status:** the code is written and tested offline. It has not yet run on live data, so
+there are no published figures yet.
+
+The project is designed to run on free tiers only, so sponsorship buys time, not services.
+It pays for:
+
+- time to finish the work: the first live run, the per-organisation reports, the free
+  public dashboard and signed attestations on a testnet;
+- keeping the measurement refreshed, with every snapshot published;
+- keeping the dashboard free for everyone, with no trackers.
+
+Sponsor through [GitHub Sponsors](https://github.com/sponsors/kalyogyogi-ui) (this link works
+only after the owner has applied and GitHub has approved the profile). There is no token,
+coin or sale. Sponsors get no financial return, no say over the findings, and no early
+access to results or organisation reports. See [docs/SPONSORS.md](docs/SPONSORS.md).
+
+### Thanks to sponsors
+
+None yet.
 
 ## License
 

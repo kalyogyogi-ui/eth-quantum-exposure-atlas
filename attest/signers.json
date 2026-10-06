@@ -1,0 +1,4 @@
+{
+  "about": "Addresses whose PQ-Attest signatures this repository vouches for. Each key is used only for attestations. `atlas attest verify` trusts only these (or --signer).",
+  "signers": []
+}
