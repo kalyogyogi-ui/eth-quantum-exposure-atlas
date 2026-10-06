@@ -13,3 +13,6 @@ orgs/out/
 .env.*
 *.key
 *.pem
+service-account*.json
+*-key.json
+*credentials*.json

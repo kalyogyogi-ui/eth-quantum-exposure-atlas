@@ -4,7 +4,7 @@ An open, reproducible measurement of how much value on Ethereum a future quantum
 computer could steal, including a surface nobody has measured before: token value
 reachable through ECDSA `permit` signatures in contracts that cannot be changed.
 
-**Status:** pipeline complete and unit-tested (154 tests); not yet run on live data.
+**Status:** pipeline complete and unit-tested (157 tests); not yet run on live data.
 
 ## What it measures
 
@@ -33,9 +33,12 @@ already measured it (about 2.5M ETH in admin-controlled contracts). Cite it inst
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements-dev.txt
-python -m pytest                # 154 tests, no network needed
+python -m pytest                # 157 tests, no network needed
 
 gcloud auth application-default login
+# ...or, where a browser login is not possible (e.g. a cloud runner), put a service-account
+# key with the "BigQuery User" role in an environment variable as JSON text:
+#   GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type": "service_account", ...}'
 set P=your-gcp-project-id       # macOS/Linux: export P=your-gcp-project-id
 
 # 1. Price every query first, including verify's. Runs nothing, costs nothing.
