@@ -61,6 +61,9 @@ class RPC:
     def block_number(self) -> int:
         return int(self.call("eth_blockNumber", []), 16)
 
+    def block_timestamp(self, block: int) -> int:
+        return int(self.call("eth_getBlockByNumber", [hex(block), False])["timestamp"], 16)
+
     def get_code(self, address: str) -> str:
         return self.call("eth_getCode", [address, self._tag()])
 

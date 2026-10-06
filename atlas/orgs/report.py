@@ -28,7 +28,7 @@ LIMITS = [
 ]
 
 
-def run_org(rpc, org: Org, block: int, finder=None) -> dict:
+def run_org(rpc, org: Org, block: int, finder=None, block_timestamp: int | None = None) -> dict:
     probe = Probe(rpc)
     roots = [c.address for c in org.contracts]
     nodes = resolve_graph(probe, roots)
@@ -57,7 +57,7 @@ def run_org(rpc, org: Org, block: int, finder=None) -> dict:
     unresolved = sorted({b for c in contracts for f in c["findings"] for b in f["blocking"]})
     return {
         "slug": org.slug, "name": org.name, "category": org.category, "published": org.published,
-        "block": block, "method_version": __version__,
+        "block": block, "block_timestamp": block_timestamp, "method_version": __version__,
         "rules": RULES, "rule_counts": dict(sorted(rule_counts.items())),
         "contracts": contracts, "unresolved": unresolved,
         "nodes": dict(sorted(nodes.items())), "limits": LIMITS,

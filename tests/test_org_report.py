@@ -55,6 +55,9 @@ def test_cli_pins_one_block(tmp_path, monkeypatch):
         def block_number(self):
             return 123
 
+        def block_timestamp(self, b):
+            return 1_759_700_000
+
         def pinned(self, b):
             pinned.append(b)
             return self
@@ -62,5 +65,6 @@ def test_cli_pins_one_block(tmp_path, monkeypatch):
     monkeypatch.setattr("atlas.rpc.RPC", FakeRPC)
     rc = cli.main(["orgs", "--rpc-url", "http://x", "--registry", str(reg), "--out", str(tmp_path / "out")])
     assert rc == 0 and pinned == [123]
-    assert json.loads((tmp_path / "out" / "acme.json").read_text())["block"] == 123
+    out = json.loads((tmp_path / "out" / "acme.json").read_text())
+    assert out["block"] == 123 and out["block_timestamp"] == 1_759_700_000
     assert cli.main(["orgs", "--rpc-url", "http://x", "--registry", str(reg), "--slug", "nope"]) == 2

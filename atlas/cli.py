@@ -8,6 +8,7 @@
   python -m atlas verify    --project P --work P.atlas --rpc-url URL
   python -m atlas snapshot
   python -m atlas orgs      --rpc-url URL [--block N] [--slug lido ...]
+  python -m atlas attest    sign-snapshot DIR | sign-org REPORT.json | verify FILE.attestation.json
 
 Every BigQuery query is dry-run first and checked against the monthly budget
 (--budget-gb, or ATLAS_MONTHLY_BUDGET_GIB); jobs are logged to out/bq_ledger.jsonl.
@@ -162,11 +163,12 @@ def cmd_orgs(a) -> int:
     base = RPC(a.rpc_url)
     block = a.block if a.block is not None else base.block_number()
     rpc = base.pinned(block)
+    block_ts = base.block_timestamp(block)
     finder = SignatureFinder(rpc, a.sig_scan_from, block) if a.sig_scan_from is not None else None
     log(f"resolving {len(orgs)} organisation(s) at block {block:,}"
         + ("" if finder else "; Safe signature scan off (pass --sig-scan-from to enable)"))
     for o in orgs:
-        r = report.run_org(rpc, o, block, finder)
+        r = report.run_org(rpc, o, block, finder, block_ts)
         j, _ = report.write(r, Path(a.out))
         log(f"  {o.slug}: {r['rule_counts']} -> {j}")
     log(f"Re-run with --block {block} to reproduce these reports exactly.")
@@ -189,6 +191,41 @@ def cmd_orgs_check(a) -> int:
     log(f"{n - len(problems)} of {n} addresses found in their sources" if problems
         else f"all {n} addresses found in their sources ({len(orgs)} organisations)")
     return 1 if problems else 0
+
+
+def cmd_attest(a) -> int:
+    import os
+    from .attest import attestation as A
+    if a.attest_cmd == "verify":
+        trusted = A.load_trusted(Path(a.signers))
+        trusted.update({x.lower(): "given with --signer" for x in a.signer or []})
+        res = A.verify(Path(a.file), trusted)
+        for c in res["checks"]:
+            log(f"{'PASS' if c['passed'] else 'FAIL'}  {c['check']}: {c['detail']}")
+        if "message" in res:
+            m = res["message"]
+            log(f"{res['type']} for {m['subject']}: block {m['blockNumber']}, data time {m['dataTimestamp']}, "
+                f"commit {m['repoCommit'][:12]}, method {m['methodVersion']}")
+        log("VERIFIED" if res["ok"] else "NOT VERIFIED")
+        return 0 if res["ok"] else 1
+    from .snapshot import git_state
+    try:
+        key = A.parse_key(os.environ.get(A.KEY_ENV))
+        if a.attest_cmd == "sign-snapshot":
+            out = A.snapshot_attestation(Path(a.dir), key)
+        else:
+            commit, dirty = git_state(Path("."))
+            if dirty:
+                raise A.AttestationError("uncommitted changes: the commit hash would not describe the code")
+            out = A.org_attestation(Path(a.report), key, commit)
+    except A.AttestationError as e:
+        log(f"attest refused: {e}")
+        return 2
+    signer = json.loads(out.read_text())["signer"]
+    log(f"wrote {out}, signed by {signer}")
+    if signer not in A.load_trusted(Path(a.signers)):
+        log(f"note: {signer} is not yet listed in {a.signers}; add it there so others can verify against it")
+    return 0
 
 
 def main(argv=None) -> int:
@@ -258,6 +295,19 @@ def main(argv=None) -> int:
     sp = sub.add_parser("orgs-check", help="confirm every registry address appears in its source_url")
     sp.add_argument("--registry", default="orgs/registry.yaml")
     sp.set_defaults(fn=cmd_orgs_check)
+
+    sp = sub.add_parser("attest", help="sign results (EIP-712) and verify attestations offline")
+    att = sp.add_subparsers(dest="attest_cmd", required=True)
+    s1 = att.add_parser("sign-snapshot", help="attest a snapshot via its manifest.json (key: $ATLAS_ATTEST_KEY)")
+    s1.add_argument("dir")
+    s2 = att.add_parser("sign-org", help="attest an organisation report (key: $ATLAS_ATTEST_KEY)")
+    s2.add_argument("report")
+    s3 = att.add_parser("verify", help="check file hash, digest, signature and signer")
+    s3.add_argument("file")
+    s3.add_argument("--signer", nargs="*", help="trusted signer address(es), in addition to --signers")
+    for x in (s1, s2, s3):
+        x.add_argument("--signers", default="attest/signers.json", help="trusted signer list")
+    sp.set_defaults(fn=cmd_attest)
 
     a = p.parse_args(argv)
     return a.fn(a)

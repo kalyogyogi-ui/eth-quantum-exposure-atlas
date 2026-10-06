@@ -19,70 +19,10 @@ executed through another contract (relayers, modules, batched calls) have no top
 execTransaction calldata to decode and are counted as undecodable; free RPC endpoints cap
 eth_getLogs ranges, so scanning a Safe's full history can be slow or refused.
 """
-from Crypto.Hash import keccak
-
 from .. import constants as K
 from ..proxies import strip0x
+from ..crypto import G, N, P, keccak256, point_add, point_mul, pubkey_to_address, recover  # noqa: F401
 from ..rpc import RPCError, RPCTransportError
-
-# secp256k1 domain parameters (SEC 2, section 2.4.1). tests/test_safesig.py checks that G is
-# on the curve and has order N, so a typo here fails the tests.
-P = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
-N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-G = (0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
-     0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8)
-
-
-def keccak256(data: bytes) -> bytes:
-    h = keccak.new(digest_bits=256)
-    h.update(data)
-    return h.digest()
-
-
-def point_add(a, b):
-    if a is None:
-        return b
-    if b is None:
-        return a
-    if a[0] == b[0] and (a[1] + b[1]) % P == 0:
-        return None
-    if a == b:
-        lam = 3 * a[0] * a[0] * pow(2 * a[1], -1, P) % P
-    else:
-        lam = (b[1] - a[1]) * pow(b[0] - a[0], -1, P) % P
-    x = (lam * lam - a[0] - b[0]) % P
-    return x, (lam * (a[0] - x) - a[1]) % P
-
-
-def point_mul(k: int, pt):
-    out = None
-    while k:
-        if k & 1:
-            out = point_add(out, pt)
-        pt = point_add(pt, pt)
-        k >>= 1
-    return out
-
-
-def pubkey_to_address(pt) -> str:
-    return "0x" + keccak256(pt[0].to_bytes(32, "big") + pt[1].to_bytes(32, "big"))[12:].hex()
-
-
-def recover(msg_hash: bytes, v: int, r: int, s: int) -> str | None:
-    """Ethereum ecrecover: v is 27 or 28. Returns the signer address, or None if invalid."""
-    if v not in (27, 28) or not (0 < r < N and 0 < s < N):
-        return None
-    y2 = (pow(r, 3, P) + 7) % P
-    y = pow(y2, (P + 1) // 4, P)
-    if y * y % P != y2:
-        return None
-    if y % 2 != v - 27:
-        y = P - y
-    e = int.from_bytes(msg_hash, "big") % N
-    r_inv = pow(r, -1, N)
-    q = point_add(point_mul(s * r_inv % N, (r, y)), point_mul((-e * r_inv) % N, G))
-    return None if q is None else pubkey_to_address(q)
-
 
 def eth_sign_digest(h: bytes) -> bytes:
     return keccak256(b"\x19Ethereum Signed Message:\n32" + h)

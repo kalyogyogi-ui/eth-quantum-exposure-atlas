@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kalyogyogi-ui/eth-quantum-exposure-atlas/atlas/attest/schemas/OrgAttestation.schema.json",
+  "title": "OrgAttestation",
+  "description": "PQ-Attest OrgAttestation: an EIP-712 signed statement about one organisation report, orgs/out/<slug>.json. Verify with `python -m atlas attest verify <file>.attestation.json`.",
+  "type": "object",
+  "required": [
+    "attestationVersion",
+    "types",
+    "primaryType",
+    "domain",
+    "message",
+    "file",
+    "digest",
+    "signer",
+    "signature"
+  ],
+  "properties": {
+    "attestationVersion": {
+      "const": 1
+    },
+    "primaryType": {
+      "const": "OrgAttestation"
+    },
+    "domain": {
+      "const": {
+        "name": "PQ-Attest",
+        "version": "1"
+      }
+    },
+    "types": {
+      "description": "EIP-712 types; must equal EIP712Domain(string name,string version) and the message fields below, in order."
+    },
+    "message": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "subject",
+        "blockNumber",
+        "dataTimestamp",
+        "fileSha256",
+        "repoCommit",
+        "methodVersion"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "description": "Version of this message layout. Currently 1.",
+          "minimum": 0,
+          "const": 1
+        },
+        "subject": {
+          "type": "string",
+          "description": "What is attested: eth-quantum-exposure-atlas/snapshot/<date> or eth-quantum-exposure-atlas/org/<slug>."
+        },
+        "blockNumber": {
+          "type": "integer",
+          "description": "Ethereum block the data describes. 0 when the source does not record one (BigQuery snapshots).",
+          "minimum": 0
+        },
+        "dataTimestamp": {
+          "type": "integer",
+          "description": "Unix seconds: latest transaction in the data (snapshots) or the block timestamp (organisation reports).",
+          "minimum": 0
+        },
+        "fileSha256": {
+          "type": "string",
+          "description": "SHA-256 of the covered file, 0x-prefixed hex.",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "repoCommit": {
+          "type": "string",
+          "description": "Git commit of the code that produced the file."
+        },
+        "methodVersion": {
+          "type": "string",
+          "description": "atlas package version (atlas.__version__)."
+        }
+      }
+    },
+    "file": {
+      "type": "string",
+      "description": "Name of the covered file, in the same directory as the attestation.",
+      "pattern": "^[^/\\\\]+$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$",
+      "description": "EIP-712 digest that was signed."
+    },
+    "signer": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{40}$"
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "v",
+        "r",
+        "s",
+        "bytes"
+      ],
+      "properties": {
+        "v": {
+          "enum": [
+            27,
+            28
+          ]
+        },
+        "r": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "s": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{130}$"
+        }
+      }
+    }
+  }
+}

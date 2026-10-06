@@ -112,6 +112,25 @@ transactions sent straight to the Safe, within the scanned range. Executions thr
 relayers or modules are counted as undecodable. Free RPC endpoints limit `eth_getLogs`
 ranges. A refused range is halved down to a floor, then reported as not checked.
 
+## Attestations
+
+Two EIP-712 message types, `SnapshotAttestation` and `OrgAttestation`, share these fields:
+`schemaVersion`, `subject`, `blockNumber`, `dataTimestamp`, `fileSha256`, `repoCommit` and
+`methodVersion`. The EIP-712 domain is `{name: "PQ-Attest", version: "1"}`. It has no
+chainId, because these signatures are made offline. A snapshot is attested through its
+`manifest.json`, which lists the SHA-256 of every file in the snapshot, so one signature
+covers them all. `blockNumber` is 0 for BigQuery snapshots, whose source tables do not
+record a block. For those, `dataTimestamp` is the latest transaction time in the data.
+
+What a valid attestation proves: the file is byte-for-byte what the listed key signed, and
+names the commit of the code that produced it. It does not prove the numbers are right.
+That comes from re-running the pipeline at that commit, which is what `verify`, the
+snapshot manifest and the per-step bytes-billed record make possible.
+
+Signing uses pure-Python secp256k1 with deterministic nonces (RFC 6979) and low-s form. The
+tests reproduce the EIP-712 reference signature exactly (EIPs repository,
+`assets/eip-712/Example.js`).
+
 ## Why not use traces for `ecrecover`?
 
 BigQuery's Parity-derived traces historically omitted precompile calls, and scanning

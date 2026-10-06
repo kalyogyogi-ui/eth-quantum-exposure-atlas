@@ -4,7 +4,7 @@ An open, reproducible measurement of how much value on Ethereum a future quantum
 computer could steal, including a surface nobody has measured before: token value
 reachable through ECDSA `permit` signatures in contracts that cannot be changed.
 
-**Status:** pipeline complete and unit-tested (135 tests); not yet run on live data.
+**Status:** pipeline complete and unit-tested (154 tests); not yet run on live data.
 
 ## What it measures
 
@@ -33,7 +33,7 @@ already measured it (about 2.5M ETH in admin-controlled contracts). Cite it inst
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements-dev.txt
-python -m pytest                # 135 tests, no network needed
+python -m pytest                # 154 tests, no network needed
 
 gcloud auth application-default login
 set P=your-gcp-project-id       # macOS/Linux: export P=your-gcp-project-id
@@ -85,6 +85,34 @@ Writes `orgs/out/<slug>.json` and `<slug>.md`: findings by rule (R0–R5), the c
 unresolved items, and the evidence for every read. `orgs/out/` is git-ignored: every report
 is a draft until the owner sets `published: true`, after notifying the organisation.
 
+## Signed attestations
+
+Each snapshot (via its `manifest.json`) and each organisation report can carry an EIP-712
+signature in a `<file>.attestation.json` beside it. Verifying needs no network and no key:
+
+```bash
+python -m atlas attest verify data/snapshots/2026-10-05/manifest.json.attestation.json
+```
+
+It checks the covered file's SHA-256, the EIP-712 digest, the signature, and that the signer
+is listed in `attest/signers.json` (or given with `--signer`). It prints PASS or FAIL for
+each check and says VERIFIED only if all of them pass. A valid signature from a key that is
+not listed is reported as NOT VERIFIED.
+
+Signing (owner only) reads a key used for nothing else from `ATLAS_ATTEST_KEY`. The key is
+never printed or written anywhere:
+
+```bash
+# once, on your own machine: make a fresh key and keep it out of the repo
+python -c "import secrets; print(secrets.token_hex(32))"
+export ATLAS_ATTEST_KEY=...            # Windows: set ATLAS_ATTEST_KEY=...
+python -m atlas attest sign-snapshot data/snapshots/2026-10-05
+python -m atlas attest sign-org orgs/out/lido.json
+```
+
+Then add the printed signer address to `attest/signers.json` and commit it. The schemas are
+in `atlas/attest/schemas/`.
+
 ## Outputs (`out/`)
 
 | File | Contents |
@@ -107,6 +135,7 @@ it whatever runs the query.
 ```
 sql/        one file per step; constants are injected from atlas/constants.py
 atlas/      CLI, BigQuery runner, RPC client, proxy resolver, pricing, summary, verification
+atlas/attest/ EIP-712 attestations: schemas, signing, offline verification
 atlas/orgs/ per-organisation registry, control-graph resolver, rules, Safe signature check, reports
 orgs/       registry.yaml (contracts with source URLs); reports go to orgs/out/ (git-ignored)
 tests/      constants recomputed with keccak; SQL parsed as BigQuery; logic tested on fakes
